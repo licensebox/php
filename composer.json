@@ -1,0 +1,31 @@
+{
+  "name": "licensebox/licensebox",
+  "description": "Native Licensebox application licensing SDK",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Vijai Kumar",
+      "homepage": "https://meshing.engineer"
+    }
+  ],
+  "require": {
+    "php": ">=8.2",
+    "ext-ffi": "*",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "files": [
+      "src/Licensebox.php"
+    ]
+  },
+  "archive": {
+    "exclude": [
+      "/tests",
+      "/ci",
+      "/build",
+      "/.git",
+      "/toolchain",
+      "/vendor"
+    ]
+  }
+}
