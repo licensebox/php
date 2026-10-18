@@ -67,6 +67,7 @@ final class Client {
     public function close(): void {if($this->busy)throw new LicenseboxException('invalid_argument','callback reentry');if(isset($this->handle)){Native::api()->lb_client_destroy($this->handle);$this->handle=null;}$this->closures=[];$this->callbacks=null;}
     public function __destruct() {if(!$this->busy)$this->close();}
     public function lease(): mixed{return $this->call('lease');}
+    public function heartbeat(string $module): mixed{return $this->call('heartbeat',['module'=>Native::arg($module)]);}
     public function requireModule(string $module): mixed{return $this->call('require',['module'=>Native::arg($module)]);}
     public function status(): mixed{return $this->call('status');}
     public function signIn(float $timeout=0): mixed{if(!is_finite($timeout))throw new LicenseboxException('invalid_argument');return $this->call('sign_in',['timeout'=>$timeout]);}

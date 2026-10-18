@@ -6,6 +6,9 @@ function run(array $r):mixed {
  $c=new Client($r['product'],$r['keys'],'conformance',$r['server'],$r['directory'],new Hooks(fn()=>(float)$r['now'],fn()=>$r['binding'],fn($u,$c)=>null),$r['ca_bundle']??null);
  try{return match($r['op']) {
  'require'=>$c->requireModule($r['module']??'core'),'repeat'=>(function()use($c){$c->requireModule('core');return $c->requireModule('core');})(),
+ 'heartbeat'=>$c->heartbeat($r['module']??'core'),
+ 'heartbeat-repeat'=>(function()use($c,$r){$c->heartbeat($r['module']??'core');return $c->heartbeat($r['module']??'core');})(),
+ 'heartbeat-after-require'=>(function()use($c,$r){$c->requireModule($r['module']??'core');return $c->heartbeat($r['module']??'core');})(),
  'sign_in'=>$c->signIn(3),'request'=>$c->requestAccess(['export'],'café – test'), 'access-link'=>$c->accessLink(),
  'record'=>(function()use($c){$c->record('export',true,.125);$c->record('export',false,.025);return null;})(),default=>$c->{$r['op']}()};}finally{$c->close();}
 }
