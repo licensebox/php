@@ -38,6 +38,7 @@ final class Native {
     }
 }
 final class Client {
+    public const VERSION = '0.2.0';
     private mixed $handle;
     private mixed $callbacks;
     private array $closures=[];
