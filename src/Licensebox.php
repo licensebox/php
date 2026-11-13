@@ -38,15 +38,15 @@ final class Native {
     }
 }
 final class Client {
-    public const VERSION = '0.3.0';
+    public const VERSION = '0.4.0';
     private mixed $handle;
     private mixed $callbacks;
     private array $closures=[];
     private ?\Throwable $failure=null;
     private bool $busy=false;
-    public function __construct(string $product,array $keys,string $version='',?string $server=null,?string $directory=null,?Hooks $hooks=null,?string $caBundle=null) {
+    public function __construct(string $product,array $keys,string $version='',?string $server=null,?string $directory=null,?Hooks $hooks=null,?string $caBundle=null,?string $enrolToken=null) {
         $f=Native::api(); $opts=['product'=>Native::arg($product),'keys'=>json_decode(Native::keys($keys)),'version'=>Native::arg($version)];
-        foreach(['server'=>$server,'directory'=>$directory,'ca_bundle'=>$caBundle] as $k=>$v)if($v!==null)$opts[$k]=Native::arg($v);
+        foreach(['server'=>$server,'directory'=>$directory,'ca_bundle'=>$caBundle,'enrol_token'=>$enrolToken] as $k=>$v)if($v!==null)$opts[$k]=Native::arg($v);
         $this->callbacks=$f->new('lb_callbacks'); $hooks ??= new Hooks;
         if($hooks->onSignIn) $this->callbacks->on_sign_in=$this->closures[]=function($ctx,$url,$code)use($hooks):void {try{($hooks->onSignIn)(Native::text($url),Native::text($code));}catch(\Throwable $e){$this->failure=$e;}};
         if($hooks->clock) $this->callbacks->clock=$this->closures[]=function($ctx)use($hooks):float {try{$v=(float)($hooks->clock)();if(!is_finite($v))throw new \InvalidArgumentException('clock must be finite');return $v;}catch(\Throwable $e){$this->failure=$e;return 0;}};
@@ -77,6 +77,11 @@ final class Client {
     public function requests(): array{return $this->call('requests');}
     public function requestAccess(array $modules,string $note=''): mixed{foreach($modules as $v)Native::arg($v);return $this->call('request',['modules'=>$modules,'note'=>Native::arg($note)]);}
     public function accessLink(): string{return $this->call('access-link');}
+    /** Service accounts and floating copies: requireModule checks a floating module
+     * out by itself; $enrolToken (else LICENSEBOX_ENROL_TOKEN) enrols on first lease. */
+    public function enrol(string $token): mixed{return $this->call('enrol',['token'=>Native::arg($token)]);}
+    public function checkout(string $module): mixed{return $this->call('checkout',['module'=>Native::arg($module)]);}
+    public function checkin(string ...$modules): void{foreach($modules as $v)Native::arg($v);$this->call('checkin',['modules'=>array_values($modules)]);}
     public function record(string $command,bool $success,float $elapsed): void{if(!is_finite($elapsed)||$elapsed<0)throw new LicenseboxException('invalid_argument');$this->call('record',['command'=>Native::arg($command),'success'=>$success,'elapsed'=>$elapsed]);}
     public static function deriveBinding(string $product,string $source,string $raw): string {
         $raw=rtrim($raw,"\0");if(str_contains($raw,"\0"))throw new LicenseboxException('identity_unavailable');
